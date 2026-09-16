@@ -17,11 +17,11 @@ class CircleShape(pygame.sprite.Sprite):
         self.radius = radius
 
     def draw(self, screen: pygame.Surface) -> None:
-        # must override
+        # must override in subclass
         pass
 
     def update(self, delta_time: float) -> None:
-        # must override
+        # must override in subclass
         pass
 
     def collides_with(self, other):
