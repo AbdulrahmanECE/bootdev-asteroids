@@ -1,0 +1,1 @@
+- Add final boss asteroid after set time of surviving
