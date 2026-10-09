@@ -11,12 +11,12 @@ from constants import (
 NEBULA_COLORS = [(90, 40, 140), (30, 70, 150), (130, 40, 100)]
 
 
-def draw_nebula(background):
+def draw_nebula(background, width: int, height: int):
     # A soft glow made of many faint, stacked circles
     color = random.choice(NEBULA_COLORS)
     max_radius = random.randint(250, 500)
-    center_x = random.randint(0, SCREEN_WIDTH)
-    center_y = random.randint(0, SCREEN_HEIGHT)
+    center_x = random.randint(0, width)
+    center_y = random.randint(0, height)
 
     for radius in range(max_radius, 0, -20):
         layer = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
@@ -24,9 +24,9 @@ def draw_nebula(background):
         background.blit(layer, (center_x - radius, center_y - radius))
 
 
-def draw_stars(background):
+def draw_stars(background, width: int, height: int):
     for _ in range(BACKGROUND_STAR_COUNT):
-        position = (random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT))
+        position = (random.randint(0, width), random.randint(0, height))
         brightness = random.randint(60, 200)
         color = (brightness, brightness, min(255, brightness + 30))
         # Most stars are tiny, a few are a little larger
@@ -34,10 +34,11 @@ def draw_stars(background):
         pygame.draw.circle(background, color, position, radius)
 
 
-def create_background():
-    background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+def create_background(width: int = SCREEN_WIDTH, height: int = SCREEN_HEIGHT):
+    background = pygame.Surface((width, height))
     background.fill(BACKGROUND_COLOR)
     for _ in range(BACKGROUND_NEBULA_COUNT):
-        draw_nebula(background)
-    draw_stars(background)
+        draw_nebula(background, width, height)
+    draw_stars(background, width, height)
     return background
+

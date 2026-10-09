@@ -2,6 +2,7 @@ import pygame
 from circleshape import CircleShape
 from shot import Shot
 from constants import *
+from shapes import SHIP_BODY, SHIP_FINS, SHIP_DETAILS
 
 class Player(CircleShape):
     def __init__(self, x, y, shot_cd):
@@ -10,14 +11,9 @@ class Player(CircleShape):
         self.shot_cd = 0
         self.invincible_timer = 0
 
-    # in the Player class
-    def triangle(self) -> list[pygame.Vector2]:
-        forward = pygame.Vector2(0, 1).rotate(self.rotation)
-        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
-        a = self.position + forward * self.radius
-        b = self.position - forward * self.radius - right
-        c = self.position - forward * self.radius + right
-        return [a, b, c]
+    def to_screen(self, points):
+        # Turn unit-space model points into positions on the screen
+        return [self.position + point.rotate(self.rotation) * self.radius for point in points]
 
     def is_invincible(self):
         return self.invincible_timer > 0
@@ -32,7 +28,14 @@ class Player(CircleShape):
             blink_step = int(self.invincible_timer / PLAYER_BLINK_INTERVAL_SECONDS)
             if blink_step % 2 == 0:
                 color = PLAYER_BLINK_COLOR
-        pygame.draw.polygon(screen, color, self.triangle(), LINE_WIDTH)
+
+        body = self.to_screen(SHIP_BODY)
+        pygame.draw.polygon(screen, "black", body)
+        pygame.draw.polygon(screen, color, body, LINE_WIDTH)
+        for fin in SHIP_FINS:
+            pygame.draw.polygon(screen, color, self.to_screen(fin))
+        for points, closed in SHIP_DETAILS:
+            pygame.draw.lines(screen, color, closed, self.to_screen(points), 1)
 
     def rotate(self, delta_time):
         self.rotation += delta_time * PLAYER_TURN_SPEED
@@ -71,15 +74,19 @@ class Player(CircleShape):
         self.wrap_around_screen()
 
     def wrap_around_screen(self):
+        screen_surf = pygame.display.get_surface()
+        width = screen_surf.get_width() if screen_surf else SCREEN_WIDTH
+        height = screen_surf.get_height() if screen_surf else SCREEN_HEIGHT
+
         # Wait until the ship is fully off screen, then bring it in from the opposite edge
         if self.position.x < -self.radius:
-            self.position.x = SCREEN_WIDTH + self.radius
-        elif self.position.x > SCREEN_WIDTH + self.radius:
+            self.position.x = width + self.radius
+        elif self.position.x > width + self.radius:
             self.position.x = -self.radius
 
         if self.position.y < -self.radius:
-            self.position.y = SCREEN_HEIGHT + self.radius
-        elif self.position.y > SCREEN_HEIGHT + self.radius:
+            self.position.y = height + self.radius
+        elif self.position.y > height + self.radius:
             self.position.y = -self.radius
 
     def shoot(self):

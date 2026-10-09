@@ -3,6 +3,8 @@ import pygame
 from constants import (
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
+    MAX_SCREEN_WIDTH,
+    MAX_SCREEN_HEIGHT,
     PLAYER_SHOOT_COOLDOWN_SECONDS,
     PLAYER_LIVES,
     RESPAWN_SAFE_RADIUS,
@@ -27,13 +29,18 @@ def draw_text(screen, font, text, position):
 
 def draw_centered_text(screen, font, text, y_offset):
     rendered = font.render(text, True, "white")
-    rect = rendered.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + y_offset))
+    width, height = screen.get_size()
+    rect = rendered.get_rect(center=(width / 2, height / 2 + y_offset))
     screen.blit(rendered, rect)
 
 
 def respawn(player, asteroids):
     # Put the ship back in the middle and clear any asteroids around it
-    center = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    screen_surf = pygame.display.get_surface()
+    width = screen_surf.get_width() if screen_surf else SCREEN_WIDTH
+    height = screen_surf.get_height() if screen_surf else SCREEN_HEIGHT
+
+    center = pygame.Vector2(width / 2, height / 2)
     player.position = center.copy()
     player.rotation = 0
     player.make_invincible()
@@ -78,9 +85,20 @@ def game_over_screen(screen, clock, background, final_score):
     return False
 
 
+def get_display_resolution():
+    info = pygame.display.Info()
+    # If display info detects a valid desktop monitor size, fit up to 2K
+    if info.current_w > 0 and info.current_h > 0:
+        width = min(info.current_w, MAX_SCREEN_WIDTH)
+        height = min(info.current_h, MAX_SCREEN_HEIGHT)
+        return width, height
+    return SCREEN_WIDTH, SCREEN_HEIGHT
+
+
 def main(screen, background):
+    width, height = screen.get_size()
     print(f"Starting Asteroids with pygame version: {pygame.version.ver}")
-    print(f"Screen width: {SCREEN_WIDTH} \nScreen height: {SCREEN_HEIGHT}")
+    print(f"Screen width: {width} \nScreen height: {height}")
 
     clock = pygame.time.Clock()
     delta_time = 0.0
@@ -94,7 +112,7 @@ def main(screen, background):
     drawable = pygame.sprite.Group()
     Player.containers = (updatable, drawable)
     
-    player = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, PLAYER_SHOOT_COOLDOWN_SECONDS)
+    player = Player(width / 2, height / 2, PLAYER_SHOOT_COOLDOWN_SECONDS)
 
     asteroids = pygame.sprite.Group()
     Asteroid.containers = (asteroids, updatable, drawable)
@@ -153,7 +171,8 @@ def main(screen, background):
 
 if __name__ == "__main__":
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    background = create_background()
+    width, height = get_display_resolution()
+    screen = pygame.display.set_mode((width, height))
+    background = create_background(width, height)
     while main(screen, background):
         pass
