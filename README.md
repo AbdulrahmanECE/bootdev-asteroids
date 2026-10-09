@@ -1,4 +1,16 @@
 # Bootdev Asteroids Arcade Game
-## Current Version: 1.0 (Finished Bootdev Guided Project)
 
-I plan on polishing the game a bit beyond the version of the guided project with at least some of the things in UPDATES.md
+## Base Version: v1.0 (Finished Bootdev Guided Project)
+
+## Current Version: v1.1.0 
+
+Potential Updates :
+- ~~Use Q and R to quit and restart the game respectively~~ (v1.1.0)
+- Implement multiple lives and respawning
+- Add a background image
+- Make the asteroids lumpy instead of perfectly round
+- Add a scoring system
+- Add an explosion effect for the asteroids
+- Make the ship have a triangular hit box instead of a circular one
+- Add final boss asteroid after set time of surviving
+
