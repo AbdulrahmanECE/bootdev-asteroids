@@ -13,6 +13,7 @@ from player import Player
 from shot import Shot
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
+from background import create_background
 
 
 def draw_text(screen, font, text, position):
@@ -30,12 +31,13 @@ def respawn(player, asteroids):
     center = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     player.position = center.copy()
     player.rotation = 0
+    player.make_invincible()
     for asteroid in asteroids:
         if asteroid.position.distance_to(center) <= RESPAWN_SAFE_RADIUS + asteroid.radius:
             asteroid.kill()
 
 
-def game_over_screen(screen, clock):
+def game_over_screen(screen, clock, background):
     # Returns True to restart, False to quit
     title_font = pygame.font.Font(None, 120)
     info_font = pygame.font.Font(None, 48)
@@ -50,7 +52,7 @@ def game_over_screen(screen, clock):
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 return True
 
-        screen.fill("black")
+        screen.blit(background, (0, 0))
         draw_centered_text(screen, title_font, "GAME OVER", -60)
         draw_centered_text(screen, info_font, "Press R to restart or Q to quit", 30)
         draw_centered_text(screen, info_font, f"Quitting in {math.ceil(time_left)}...", 90)
@@ -61,7 +63,7 @@ def game_over_screen(screen, clock):
     return False
 
 
-def main(screen):
+def main(screen, background):
     print(f"Starting Asteroids with pygame version: {pygame.version.ver}")
     print(f"Screen width: {SCREEN_WIDTH} \nScreen height: {SCREEN_HEIGHT}")
 
@@ -91,7 +93,7 @@ def main(screen):
     while True:
         log_state()
         
-        screen.fill("black")
+        screen.blit(background, (0, 0))
         for drawing in drawable:
             drawing.draw(screen)
         draw_text(screen, hud_font, f"Lives: {lives}", (20, 20))
@@ -99,13 +101,13 @@ def main(screen):
         updatable.update(delta_time)
 
         for asteroid in asteroids:
-            if player.collides_with(asteroid):
+            if not player.is_invincible() and player.collides_with(asteroid):
                 log_event("player_hit")
                 lives -= 1
                 if lives <= 0:
                     print("Game Over!")
                     log_event("game_over")
-                    return game_over_screen(screen, clock)
+                    return game_over_screen(screen, clock, background)
                 respawn(player, asteroids)
                 break
 
@@ -129,5 +131,6 @@ def main(screen):
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    while main(screen):
+    background = create_background()
+    while main(screen, background):
         pass
