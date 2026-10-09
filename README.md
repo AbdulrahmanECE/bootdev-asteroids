@@ -6,7 +6,7 @@
 
 Potential Updates :
 - ~~Use Q and R to quit and restart the game respectively~~ (v1.1.0)
-- Implement multiple lives and respawning
+- ~~Implement multiple lives and respawning~~ (v1.2.0)
 - Add a background image
 - Make the asteroids lumpy instead of perfectly round
 - Add a scoring system
